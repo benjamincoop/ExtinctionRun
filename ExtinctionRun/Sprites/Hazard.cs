@@ -22,14 +22,14 @@ namespace ExtinctionRun.Sprites
         public HazardType Type { get; set; }
 
         /// <summary>
-        /// The rate at which the tile scrolls leftward
+        /// The rate at which the sprite scrolls leftward
         /// </summary>
-        public Vector2 Velocity { get; set; } = new Vector2(-500f, 0f);
+        public Vector2 Velocity { get; set; } = new Vector2(Constants.RunSpeed, 0f);
 
         public bool Active { get; set; } = true;
 
         /// <summary>
-        /// Creates a new terrain tile
+        /// Creates a new hazard sprite
         /// </summary>
         /// <param name="position"></param>
         /// <param name="texture"></param>
@@ -40,7 +40,7 @@ namespace ExtinctionRun.Sprites
         }
 
         /// <summary>
-        /// Loads the terrain texture
+        /// Loads the hazard texture
         /// </summary>
         public void LoadContent(ContentManager content)
         {
@@ -63,10 +63,11 @@ namespace ExtinctionRun.Sprites
                     break;
             }
             Position = new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + BaseTexture.Height));
+            CollisionBox = new CollisionHelper.BoundingRectangle(Position, new Vector2(BaseTexture.Width, BaseTexture.Height));
         }
 
         /// <summary>
-        /// Draws the tile at its current position
+        /// Draws the sprite at its current position
         /// </summary>
         /// <param name="spriteBatch">The SpriteBatch to render with</param>
         public void Draw(SpriteBatch spriteBatch)
@@ -90,6 +91,8 @@ namespace ExtinctionRun.Sprites
             if (Position.X <= -1 * BaseTexture.Width) { Active = false; }
 
             Position += Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            CollisionBox.Position = Position;
         }
     }
 }

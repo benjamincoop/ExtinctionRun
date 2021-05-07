@@ -17,6 +17,11 @@ namespace ExtinctionRun
         const float playerScale = 0.25f;
         const float forceJump = -750f;
         const float forceGravity = 25f;
+        const float runSpeed = -500f;
+        const int coinSize = 16;
+        const float coinScale = 2f;
+        const int coinValue = 200;
+        const int scoreRate = 10;
 
         public static string Title { get { return title; } }
         public static int GameWidth { get { return gameWidth; } }
@@ -27,5 +32,10 @@ namespace ExtinctionRun
         public static float PlayerScale {  get { return playerScale; } }
         public static float ForceJump {  get { return forceJump; } }
         public static float ForceGravity {  get { return forceGravity; } }
+        public static float RunSpeed { get { return runSpeed; } }
+        public static int CoinSize { get { return coinSize; } }
+        public static float CoinScale {  get { return coinScale; } }
+        public static int CoinValue { get { return coinValue; } }
+        public static int ScoreRate { get { return scoreRate; } }
     }
 }

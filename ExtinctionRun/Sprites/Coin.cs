@@ -5,51 +5,52 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace ExtinctionRun.Sprites
 {
-    public class Terrain : Sprite
+    class Coin : Sprite
     {
-        #region Local vars
-        /// <summary>
-        /// The amount of overlap between tiles, to hide the seam between them
-        /// </summary>
-        readonly int xOffset = 10;
-        #endregion
 
         /// <summary>
-        /// The rate at which the tile scrolls leftward
+        /// The rate at which the coin scrolls leftward
         /// </summary>
         public Vector2 Velocity { get; set; } = new Vector2(Constants.RunSpeed, 0f);
 
+        public bool Active { get; set; } = true;
+
+        private Animation _animation;
+
         /// <summary>
-        /// Creates a new terrain tile
+        /// Creates a new coin sprite
         /// </summary>
         /// <param name="position"></param>
         /// <param name="texture"></param>
-        public Terrain(Vector2 position)
+        public Coin(Vector2 position)
         {
             Position = position;
+            ScaleFactor = Constants.CoinScale;
+            CollisionCircle = new CollisionHelper.BoundingCircle(Vector2.Zero, (Constants.CoinSize * Constants.CoinScale) / 2);
         }
 
         /// <summary>
-        /// Loads the terrain texture
+        /// Loads the coin texture
         /// </summary>
         public void LoadContent(ContentManager content)
         {
-            BaseTexture = content.Load<Texture2D>("terrain_platform");
+            _animation = new Animation(content, new string[] { "Coin (1)", "Coin (2)", "Coin (3)", "Coin (4)", "Coin (5)", "Coin (6)", "Coin (7)", "Coin (8)" }, 5);
         }
 
         /// <summary>
-        /// Draws the tile at its current position
+        /// Draws the coin at its current position
         /// </summary>
         /// <param name="spriteBatch">The SpriteBatch to render with</param>
         public void Draw(SpriteBatch spriteBatch)
         {
+            BaseTexture = _animation.Animate();
             if (BaseTexture is null)
             {
-                throw new InvalidOperationException("Terrain texture unloaded.");
+                throw new InvalidOperationException("Hazard texture unloaded.");
             }
             else
             {
-                spriteBatch.Draw(BaseTexture, Position, ShadingColor);
+                spriteBatch.Draw(BaseTexture, Position, null, ShadingColor, Rotation, Vector2.Zero, ScaleFactor, SpriteEffects.None, 0);
             }
 
         }
@@ -59,9 +60,11 @@ namespace ExtinctionRun.Sprites
         /// </summary>
         public void Update(GameTime gameTime)
         {
-            if (Position.X - xOffset <= -1 * BaseTexture.Width) { Position = new Vector2(Constants.GameWidth, Constants.GameHeight - Constants.TerrainHeight); }
+            if (Position.X <= -1 * BaseTexture.Width) { Active = false; }
 
             Position += Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            CollisionCircle.Center = new Vector2(Position.X + ((Constants.CoinSize * Constants.CoinScale) / 2), Position.Y + ((Constants.CoinSize * Constants.CoinScale) / 2));
         }
     }
 }

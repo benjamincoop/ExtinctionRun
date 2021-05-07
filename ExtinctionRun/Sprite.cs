@@ -43,5 +43,10 @@ namespace ExtinctionRun
         /// The BoundingRectangle for collision detection
         /// </summary>
         public CollisionHelper.BoundingRectangle CollisionBox { get; set; }
+
+        /// <summary>
+        /// The BoundingCircle for collision detection
+        /// </summary>
+        public CollisionHelper.BoundingCircle CollisionCircle { get; set; }
     }
 }

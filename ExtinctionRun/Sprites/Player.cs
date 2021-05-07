@@ -36,6 +36,7 @@ namespace ExtinctionRun.Sprites
         {
             Position = position;
             ScaleFactor = Constants.PlayerScale;
+            CollisionBox = new CollisionHelper.BoundingRectangle(Position, Vector2.Zero);
         }
 
         /// <summary>
@@ -50,13 +51,16 @@ namespace ExtinctionRun.Sprites
         }
 
         /// <summary>
-        /// Draws the tile at its current position
+        /// Draws the sprite at its current position
         /// </summary>
         /// <param name="spriteBatch">The SpriteBatch to render with</param>
         public void Draw(SpriteBatch spriteBatch)
         {
             // Get current texture
             BaseTexture = _animations[(int)State].Animate();
+
+            // set collision bounds to size of texture
+            CollisionBox.Size = new Vector2(BaseTexture.Width, BaseTexture.Height) * (ScaleFactor * 0.75f);
 
             if (BaseTexture is null)
             {
@@ -105,6 +109,8 @@ namespace ExtinctionRun.Sprites
                     );
                 }
             }
+            // update collisionbox position to match player's
+            CollisionBox.Position = Position;
         }
     }
 }
