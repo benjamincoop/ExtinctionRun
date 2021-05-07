@@ -17,6 +17,8 @@ namespace ExtinctionRun
             set { _delay = value; }
         }
 
+        public bool IsFinished { get; set; } = false; // is true if animation has looped at least once
+
         public Animation(ContentManager content, string[] filenames, int delay)
         {
             _frames = new Texture2D[filenames.Length];
@@ -40,7 +42,10 @@ namespace ExtinctionRun
                     _index++;
                     _clock = 0;
 
-                    if (_index > _frames.Length - 1) { _index = 0; }
+                    if (_index > _frames.Length - 1) { 
+                        _index = 0;
+                        IsFinished = true;
+                    }
                 }
 
                 _clock++;

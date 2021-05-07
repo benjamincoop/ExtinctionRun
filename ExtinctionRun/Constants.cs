@@ -22,6 +22,7 @@ namespace ExtinctionRun
         const float coinScale = 2f;
         const int coinValue = 200;
         const int scoreRate = 10;
+        const int heartSize = 48;
 
         public static string Title { get { return title; } }
         public static int GameWidth { get { return gameWidth; } }
@@ -37,5 +38,6 @@ namespace ExtinctionRun
         public static float CoinScale {  get { return coinScale; } }
         public static int CoinValue { get { return coinValue; } }
         public static int ScoreRate { get { return scoreRate; } }
+        public static int HeartSize { get { return heartSize; } }
     }
 }

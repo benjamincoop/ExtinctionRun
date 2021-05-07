@@ -48,6 +48,8 @@ namespace ExtinctionRun.Sprites
             _animations[(int)PlayerState.RUNNING] = new Animation(content, new string[] { "Run (1)", "Run (2)", "Run (3)", "Run (4)", "Run (5)", "Run (6)", "Run (7)", "Run (8)" }, 5);
             _animations[(int)PlayerState.JUMPING] = new Animation(content, new string[] { "Jump (1)", "Jump (2)", "Jump (3)", "Jump (4)", "Jump (5)", "Jump (6)", "Jump (7)", "Jump (8)", "Jump (9)", "Jump (10)", "Jump (11)", "Jump (12)" }, 3);
             _animations[(int)PlayerState.FALLING] = new Animation(content, new string[] { "Jump (12)" }, 0);
+            _animations[(int)PlayerState.DYING] = new Animation(content, new string[] { "Dead (1)", "Dead (2)", "Dead (3)", "Dead (4)", "Dead (5)", "Dead (6)", "Dead (7)", "Dead (8)" }, 5);
+            _animations[(int)PlayerState.DEAD] = new Animation(content, new string[] { "Dead (8)" }, 0);
         }
 
         /// <summary>
@@ -56,6 +58,13 @@ namespace ExtinctionRun.Sprites
         /// <param name="spriteBatch">The SpriteBatch to render with</param>
         public void Draw(SpriteBatch spriteBatch)
         {
+            
+            // Check if death animation is finished
+            if(State == PlayerState.DYING && _animations[(int)State].IsFinished)
+            {
+                State = PlayerState.DEAD;
+            }
+
             // Get current texture
             BaseTexture = _animations[(int)State].Animate();
 
@@ -108,7 +117,7 @@ namespace ExtinctionRun.Sprites
                         Constants.GameHeight - (Constants.TerrainHeight + Constants.PlayerHeight * Constants.PlayerScale)
                     );
                 }
-            }
+            } 
             // update collisionbox position to match player's
             CollisionBox.Position = Position;
         }

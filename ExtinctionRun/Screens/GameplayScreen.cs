@@ -54,6 +54,21 @@ namespace ExtinctionRun.Screens
         /// </summary>
         private List<Coin> _coins;
 
+        /// <summary>
+        /// The collection of heart pickups
+        /// </summary>
+        private List<Heart> _heartPickups;
+
+        /// <summary>
+        /// Shows whether the player has an extra life or not
+        /// </summary>
+        private Heart _extraLife;
+
+        /// <summary>
+        /// Indicates that the player is temporarily invulnerable to hazards.
+        /// </summary>
+        private bool _invulnerable = false;
+
         private Random random = new Random();
 
         public GameplayScreen()
@@ -93,6 +108,8 @@ namespace ExtinctionRun.Screens
 
             _hazards = new List<Hazard>();
             _coins = new List<Coin>();
+            _heartPickups = new List<Heart>();
+            _extraLife = new Heart(new Vector2(Constants.GameWidth - (Constants.HeartSize + 5), 5), false);
         }
 
         // Load assets
@@ -106,13 +123,15 @@ namespace ExtinctionRun.Screens
             // Load assets
             _gameFont = _content.Load<SpriteFont>("gamefont");
             foreach (Background bg in _backgrounds) { bg.LoadContent(_content); }
-            foreach (Terrain t in _terrainTiles) { t.LoadContent(_content); }
+            foreach (Terrain terrain in _terrainTiles) { terrain.LoadContent(_content); }
             _player.LoadContent(_content);
             _hazards.Add(SpawnHazard());
             _coins.Add(SpawnCoin(new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + (Constants.CoinSize * Constants.CoinScale)))));
+            _heartPickups.Add(SpawnHeart(new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + Constants.HeartSize + 200))));
+            _extraLife.LoadContent(_content);
 
-            // Pause for a second to make the loading screen look cooler
-            Thread.Sleep(1000);
+            // Pause for a bit to make the loading screen look cooler
+            Thread.Sleep(500);
             ScreenManager.Game.ResetElapsedTime();
         }
 
@@ -141,45 +160,83 @@ namespace ExtinctionRun.Screens
 
             if (IsActive)
             {
-                // do game stuff
                 if (_player.State != Player.PlayerState.DYING && _player.State != Player.PlayerState.DEAD)
                 {
+                    // update score
                     _scoreClock += gameTime.ElapsedGameTime.TotalMilliseconds;
-                    if(_scoreClock >= 100)
+                    if (_scoreClock >= 100)
                     {
                         _score += Constants.ScoreRate;
                         _scoreClock = 0;
                     }
-                }
-                foreach (Background bg in _backgrounds) { bg.Update(gameTime); }
-                foreach (Terrain t in _terrainTiles) { t.Update(gameTime); }
-                foreach (Hazard h in _hazards.ToArray()) {
-                    h.Update(gameTime);
-                    if(h.CollisionBox.CollidesWith(_player.CollisionBox))
+
+                    // update sprites
+                    foreach (Background bg in _backgrounds) { bg.Update(gameTime); }
+                    foreach (Terrain terrain in _terrainTiles) { terrain.Update(gameTime); }
+                    foreach (Hazard hazard in _hazards.ToArray())
                     {
-                        _player.ShadingColor = Color.Red;
-                    } else
-                    {
-                        _player.ShadingColor = Color.White;
+                        hazard.Update(gameTime);
+                        if (hazard.CollisionBox.CollidesWith(_player.CollisionBox))
+                        {
+                            _player.ShadingColor = Color.Red;
+                            if(_invulnerable == false)
+                            {
+                                if (_extraLife.Active)
+                                {
+                                    _extraLife.Active = false;
+                                    _invulnerable = true;
+                                }
+                                else
+                                {
+                                    GameOver();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            _player.ShadingColor = Color.White;
+                            _invulnerable = false;
+                        }
+                        if (hazard.Active == false)
+                        {
+                            _hazards.Remove(hazard);
+                            _hazards.Add(SpawnHazard());
+                        }
                     }
-                    if(h.Active == false)
+                    foreach (Coin coin in _coins.ToArray())
                     {
-                        _hazards.Remove(h);
-                        _hazards.Add(SpawnHazard());
+                        coin.Update(gameTime);
+                        if (coin.CollisionCircle.CollidesWith(_player.CollisionBox))
+                        {
+                            _score += Constants.CoinValue;
+                            coin.Active = false;
+                        }
+                        if (coin.Active == false)
+                        {
+                            _coins.Remove(coin);
+                            _coins.Add(SpawnCoin(new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + (Constants.CoinSize * Constants.CoinScale)))));
+                        }
                     }
-                }
-                foreach (Coin c in _coins.ToArray()) {
-                    c.Update(gameTime);
-                    if(c.CollisionCircle.CollidesWith(_player.CollisionBox))
+                    foreach (Heart heart in _heartPickups.ToArray())
                     {
-                        _score += Constants.CoinValue;
-                        c.Active = false;
+                        heart.Update(gameTime);
+                        if (heart.CollisionCircle.CollidesWith(_player.CollisionBox))
+                        {
+                            heart.Active = false;
+                            if (_extraLife.Active == false) { _extraLife.Active = true; }
+                        }
+                        if (heart.Active == false)
+                        {
+                            _heartPickups.Remove(heart);
+                        }
                     }
-                    if(c.Active == false)
+                    if (_extraLife.Active == false && _heartPickups.Count == 0)
                     {
-                        _coins.Remove(c);
-                        _coins.Add(SpawnCoin(new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + (Constants.CoinSize * Constants.CoinScale)))));
+                        _heartPickups.Add(SpawnHeart(new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + Constants.HeartSize + 200))));
                     }
+                } else
+                {
+                    if (_player.State == Player.PlayerState.DEAD) { _player.ShadingColor = Color.White; } 
                 }
                 _player.Update(gameTime);
             }
@@ -233,6 +290,21 @@ namespace ExtinctionRun.Screens
             return coin;
         }
 
+        private Heart SpawnHeart(Vector2 position)
+        {
+            Heart heart = new Heart(position, true);
+            heart.LoadContent(_content);
+            return heart;
+        }
+
+        /// <summary>
+        /// Triggers a extinction event *ba-dum tiss*
+        /// </summary>
+        private void GameOver()
+        {
+            _player.State = Player.PlayerState.DYING;
+        }
+
         public override void Draw(GameTime gameTime)
         {
             //ScreenManager.GraphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
@@ -242,11 +314,13 @@ namespace ExtinctionRun.Screens
 
             // do drawing stuff
             foreach (Background bg in _backgrounds) { bg.Draw(spriteBatch); }
-            foreach (Terrain t in _terrainTiles) { t.Draw(spriteBatch); }
+            foreach (Terrain terrain in _terrainTiles) { terrain.Draw(spriteBatch); }
             if (IsActive) { _player.Draw(spriteBatch); }
-            foreach (Hazard h in _hazards) { h.Draw(spriteBatch); }
-            foreach (Coin c in _coins) { c.Draw(spriteBatch); }
-            spriteBatch.DrawString(_gameFont, "Score: " + _score.ToString(), Vector2.Zero, Color.White);
+            foreach (Hazard hazard in _hazards) { hazard.Draw(spriteBatch); }
+            foreach (Coin coin in _coins) { coin.Draw(spriteBatch); }
+            foreach (Heart heart in _heartPickups) { heart.Draw(spriteBatch); }
+            if(_extraLife.Active) { _extraLife.Draw(spriteBatch); }
+            spriteBatch.DrawString(_gameFont, "Score:   " + _score.ToString(), Vector2.Zero, Color.Black);
             spriteBatch.End();
 
             // If the game is transitioning on or off, fade it out to black.
