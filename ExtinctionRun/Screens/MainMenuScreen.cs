@@ -9,14 +9,17 @@ namespace ExtinctionRun.Screens
         public MainMenuScreen() : base("Main Menu")
         {
             var playGameMenuEntry = new MenuEntry("Play Game");
+            var helpMenuEntry = new MenuEntry("How to Play");
             var optionsMenuEntry = new MenuEntry("Options");
             var exitMenuEntry = new MenuEntry("Exit");
 
             playGameMenuEntry.Selected += PlayGameMenuEntrySelected;
+            helpMenuEntry.Selected += HelpMenuEntrySelected;
             optionsMenuEntry.Selected += OptionsMenuEntrySelected;
             exitMenuEntry.Selected += OnCancel;
 
             MenuEntries.Add(playGameMenuEntry);
+            MenuEntries.Add(helpMenuEntry);
             MenuEntries.Add(optionsMenuEntry);
             MenuEntries.Add(exitMenuEntry);
         }
@@ -24,6 +27,12 @@ namespace ExtinctionRun.Screens
         private void PlayGameMenuEntrySelected(object sender, PlayerIndexEventArgs e)
         {
             LoadingScreen.Load(ScreenManager, true, e.PlayerIndex, new GameplayScreen());
+        }
+
+        private void HelpMenuEntrySelected(object sender, PlayerIndexEventArgs e)
+        {
+            string message = "Avoid the obstacles by pressing SPACE to jump over them. Collect coins for bonus points and hearts for extra lives.";
+            ScreenManager.AddScreen(new MessageBoxScreen(message, false), e.PlayerIndex);
         }
 
         private void OptionsMenuEntrySelected(object sender, PlayerIndexEventArgs e)

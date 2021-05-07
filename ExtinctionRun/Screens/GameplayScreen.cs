@@ -7,6 +7,8 @@ using Microsoft.Xna.Framework.Input;
 using ExtinctionRun.StateManagement;
 using ExtinctionRun.Sprites;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
 
 namespace ExtinctionRun.Screens
 {
@@ -69,6 +71,12 @@ namespace ExtinctionRun.Screens
         /// </summary>
         private bool _invulnerable = false;
 
+        private SoundEffect _SFXcoin;
+        private SoundEffect _SFXheart;
+        private SoundEffect _SFXhurt;
+        private SoundEffect _SFXdead;
+        private Song _music;
+
         private Random random = new Random();
 
         public GameplayScreen()
@@ -129,6 +137,13 @@ namespace ExtinctionRun.Screens
             _coins.Add(SpawnCoin(new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + (Constants.CoinSize * Constants.CoinScale)))));
             _heartPickups.Add(SpawnHeart(new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + Constants.HeartSize + 200))));
             _extraLife.LoadContent(_content);
+            _SFXcoin = _content.Load<SoundEffect>("CoinPickup");
+            _SFXhurt = _content.Load<SoundEffect>("Hurt");
+            _SFXdead = _content.Load<SoundEffect>("Dead");
+            _SFXheart = _content.Load<SoundEffect>("HeartPickup");
+            _music = _content.Load<Song>("GameMusic");
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(_music);
 
             // Pause for a bit to make the loading screen look cooler
             Thread.Sleep(500);
@@ -183,11 +198,13 @@ namespace ExtinctionRun.Screens
                             {
                                 if (_extraLife.Active)
                                 {
+                                    _SFXhurt.Play();
                                     _extraLife.Active = false;
                                     _invulnerable = true;
                                 }
                                 else
                                 {
+                                    _SFXdead.Play();
                                     GameOver();
                                 }
                             }
@@ -209,6 +226,7 @@ namespace ExtinctionRun.Screens
                         if (coin.CollisionCircle.CollidesWith(_player.CollisionBox))
                         {
                             _score += Constants.CoinValue;
+                            _SFXcoin.Play();
                             coin.Active = false;
                         }
                         if (coin.Active == false)
@@ -223,7 +241,10 @@ namespace ExtinctionRun.Screens
                         if (heart.CollisionCircle.CollidesWith(_player.CollisionBox))
                         {
                             heart.Active = false;
-                            if (_extraLife.Active == false) { _extraLife.Active = true; }
+                            if (_extraLife.Active == false) {
+                                _extraLife.Active = true;
+                                _SFXheart.Play();
+                            }
                         }
                         if (heart.Active == false)
                         {
@@ -321,6 +342,12 @@ namespace ExtinctionRun.Screens
             foreach (Heart heart in _heartPickups) { heart.Draw(spriteBatch); }
             if(_extraLife.Active) { _extraLife.Draw(spriteBatch); }
             spriteBatch.DrawString(_gameFont, "Score:   " + _score.ToString(), Vector2.Zero, Color.Black);
+            if(_player.State == Player.PlayerState.DEAD)
+            {
+                string str = "Game   Over";
+                Vector2 strSize = _gameFont.MeasureString(str);
+                spriteBatch.DrawString(_gameFont, str, new Vector2(Constants.GameWidth / 2 - strSize.X / 2, Constants.GameHeight / 2 - strSize.Y), Color.Red);
+            }
             spriteBatch.End();
 
             // If the game is transitioning on or off, fade it out to black.
