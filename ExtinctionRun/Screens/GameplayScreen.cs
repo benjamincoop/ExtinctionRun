@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using ExtinctionRun.StateManagement;
 using ExtinctionRun.Sprites;
+using System.Collections.Generic;
 
 namespace ExtinctionRun.Screens
 {
@@ -16,6 +17,7 @@ namespace ExtinctionRun.Screens
 
         private float _pauseAlpha;
         private readonly InputAction _pauseAction;
+        private readonly InputAction _jumpAction;
 
         /// <summary>
         /// The two sprites that make up the infinite scrolling background
@@ -32,6 +34,13 @@ namespace ExtinctionRun.Screens
         /// </summary>
         private Player _player;
 
+        /// <summary>
+        /// The collection of hazard sprites
+        /// </summary>
+        private List<Hazard> _hazards;
+
+        private Random random = new Random();
+
         public GameplayScreen()
         {
             TransitionOnTime = TimeSpan.FromSeconds(1.5);
@@ -39,7 +48,15 @@ namespace ExtinctionRun.Screens
 
             _pauseAction = new InputAction(
                 new[] { Buttons.Start, Buttons.Back },
-                new[] { Keys.Back, Keys.Escape }, true);
+                new[] { Keys.Back, Keys.Escape },
+                true
+            );
+
+            _jumpAction = new InputAction(
+                new[] { Buttons.A, Buttons.DPadUp },
+                new[] { Keys.Space},
+                true
+            ) ;
 
             // Create the scrolling background
             _backgrounds = new Background[] {
@@ -54,7 +71,12 @@ namespace ExtinctionRun.Screens
                 new Terrain(new Vector2(Constants.GameWidth, Constants.GameHeight-Constants.TerrainHeight))
             };
 
-            _player = new Player(new Vector2(Constants.GameWidth / 2, Constants.GameHeight - (Constants.TerrainHeight + Constants.PlayerHeight)));
+            _player = new Player(new Vector2(
+                (Constants.GameWidth / 2) - (Constants.PlayerWidth * Constants.PlayerScale / 2),
+                Constants.GameHeight - (Constants.TerrainHeight + Constants.PlayerHeight * Constants.PlayerScale))
+            );
+
+            _hazards = new List<Hazard>();
         }
 
         // Load assets
@@ -70,6 +92,7 @@ namespace ExtinctionRun.Screens
             foreach (Background bg in _backgrounds) { bg.LoadContent(_content); }
             foreach(Terrain t in _terrainTiles) { t.LoadContent(_content); }
             _player.LoadContent(_content);
+            _hazards.Add(SpawnHazard());
 
             // Pause for a second to make the loading screen look cooler
             Thread.Sleep(1000);
@@ -104,6 +127,15 @@ namespace ExtinctionRun.Screens
                 // do game stuff
                 foreach(Background bg in _backgrounds) { bg.Update(gameTime); }
                 foreach(Terrain t in _terrainTiles) { t.Update(gameTime); }
+                foreach(Hazard h in _hazards.ToArray()) {
+                    h.Update(gameTime);
+                    if(h.Active == false)
+                    {
+                        _hazards.Remove(h);
+                        _hazards.Add(SpawnHazard());
+                    }
+                }
+                _player.Update(gameTime);
             }
         }
 
@@ -132,24 +164,34 @@ namespace ExtinctionRun.Screens
             }
             else
             {
-                // do control stuff
+                if(_jumpAction.Occurred(input, ControllingPlayer, out player) && _player.State == Player.PlayerState.RUNNING)
+                {
+                    _player.Jump();
+                }
             }
+        }
+
+        private Hazard SpawnHazard()
+        {
+            Hazard hazard;
+            int type = random.Next(0, 5);
+            hazard = new Hazard(Vector2.Zero, (Hazard.HazardType)type);
+            hazard.LoadContent(_content);
+            return hazard;
         }
 
         public override void Draw(GameTime gameTime)
         {
-            // This game has a blue background. Why? Because!
-            ScreenManager.GraphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
-
-            // Our player and enemy are both actually just text strings.
+            //ScreenManager.GraphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
             var spriteBatch = ScreenManager.SpriteBatch;
 
             spriteBatch.Begin();
 
             // do drawing stuff
             foreach (Background bg in _backgrounds) { bg.Draw(spriteBatch); }
-            foreach(Terrain t in _terrainTiles) { t.Draw(spriteBatch); }
-            _player.Draw(spriteBatch);
+            foreach (Terrain t in _terrainTiles) { t.Draw(spriteBatch); }
+            if (IsActive) { _player.Draw(spriteBatch); }
+            foreach (Hazard h in _hazards) { h.Draw(spriteBatch); }
 
             spriteBatch.End();
 
