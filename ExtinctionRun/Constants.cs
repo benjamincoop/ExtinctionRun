@@ -12,9 +12,13 @@ namespace ExtinctionRun
         const string title = "Extinction Run";
         const int gameWidth = 1280;
         const int gameHeight = 960;
+        const int terrainHeight = 192;
+        const int playerHeight = 90;
 
         public static string Title { get { return title; } }
         public static int GameWidth { get { return gameWidth; } }
         public static int GameHeight { get { return gameHeight; } }
+        public static int TerrainHeight { get { return terrainHeight; } }
+        public static int PlayerHeight { get { return playerHeight; } }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using ExtinctionRun.StateManagement;
+using ExtinctionRun.Sprites;
 
 namespace ExtinctionRun.Screens
 {
@@ -21,6 +22,16 @@ namespace ExtinctionRun.Screens
         /// </summary>
         private Background[] _backgrounds;
 
+        /// <summary>
+        /// The tiles that make up the scrolling terrain platform
+        /// </summary>
+        private Terrain[] _terrainTiles;
+
+        /// <summary>
+        /// The player sprite
+        /// </summary>
+        private Player _player;
+
         public GameplayScreen()
         {
             TransitionOnTime = TimeSpan.FromSeconds(1.5);
@@ -35,6 +46,15 @@ namespace ExtinctionRun.Screens
                 new Background(new Vector2(0,0)),
                 new Background(new Vector2(Constants.GameWidth,0))
             };
+
+            // Create the terrain tiles
+            _terrainTiles = new Terrain[]
+            {
+                new Terrain(new Vector2(0,Constants.GameHeight-Constants.TerrainHeight)),
+                new Terrain(new Vector2(Constants.GameWidth, Constants.GameHeight-Constants.TerrainHeight))
+            };
+
+            _player = new Player(new Vector2(Constants.GameWidth / 2, Constants.GameHeight - (Constants.TerrainHeight + Constants.PlayerHeight)));
         }
 
         // Load assets
@@ -48,6 +68,8 @@ namespace ExtinctionRun.Screens
             // Load assets
             _gameFont = _content.Load<SpriteFont>("gamefont");
             foreach (Background bg in _backgrounds) { bg.LoadContent(_content); }
+            foreach(Terrain t in _terrainTiles) { t.LoadContent(_content); }
+            _player.LoadContent(_content);
 
             // Pause for a second to make the loading screen look cooler
             Thread.Sleep(1000);
@@ -80,7 +102,8 @@ namespace ExtinctionRun.Screens
             if (IsActive)
             {
                 // do game stuff
-                foreach(Background bg in _backgrounds) { bg.Update(); }
+                foreach(Background bg in _backgrounds) { bg.Update(gameTime); }
+                foreach(Terrain t in _terrainTiles) { t.Update(gameTime); }
             }
         }
 
@@ -125,6 +148,8 @@ namespace ExtinctionRun.Screens
 
             // do drawing stuff
             foreach (Background bg in _backgrounds) { bg.Draw(spriteBatch); }
+            foreach(Terrain t in _terrainTiles) { t.Draw(spriteBatch); }
+            _player.Draw(spriteBatch);
 
             spriteBatch.End();
 

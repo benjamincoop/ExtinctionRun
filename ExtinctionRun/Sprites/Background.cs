@@ -3,9 +3,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace ExtinctionRun
+namespace ExtinctionRun.Sprites
 {
-    class Background : Sprite
+    public class Background : Sprite
     {
         #region Local vars
         /// <summary>
@@ -17,7 +17,7 @@ namespace ExtinctionRun
         /// <summary>
         /// The rate at which the background scrolls leftward
         /// </summary>
-        public int Speed { get; set; } = 5;
+        public Vector2 Velocity { get; set; } = new Vector2(-200f, 0f);
 
         /// <summary>
         /// Constructs a new class instance
@@ -57,11 +57,11 @@ namespace ExtinctionRun
         /// <summary>
         /// Moves the background sprite leftwards at a fixed speed and handles screen wraparound
         /// </summary>
-        public void Update()
+        public void Update(GameTime gameTime)
         {
-            Position = new Vector2(Position.X - Speed, 0);
+            if (Position.X - xOffset <= -1 * BaseTexture.Width) { Position = new Vector2(Constants.GameWidth, 0); }
 
-            if (Position.X < -1 * BaseTexture.Width) Position = new Vector2(BaseTexture.Width - xOffset, 0);
+            Position += Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
     }
 }
