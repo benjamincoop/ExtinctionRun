@@ -425,9 +425,14 @@ namespace ExtinctionRun.Screens
             foreach (Coin coin in _coins) { coin.Draw(spriteBatch); }
             foreach (Heart heart in _heartPickups) { heart.Draw(spriteBatch); }
             if(_extraLife.Active) { _extraLife.Draw(spriteBatch); }
-            spriteBatch.DrawString(_gameFont, "Score:   " + _score.ToString(), Vector2.Zero, Color.Black);
+            spriteBatch.DrawString(_gameFont, "Score: " + _score.ToString(), Vector2.Zero, Color.Black);
+            spriteBatch.DrawString(_gameFont, "Hi Score: " + ((ExtinctionRun)ScreenManager.Game).HighScore.ToString(), new Vector2(0, Constants.GameHeight - 50), Color.LightGray);
             if(_player.State == Player.PlayerState.DEAD)
             {
+                if (_score > ((ExtinctionRun)ScreenManager.Game).HighScore)
+                {
+                    ((ExtinctionRun)ScreenManager.Game).HighScore = _score;
+                }
                 string str = "Game Over\nPress ENTER to restart.";
                 Vector2 strSize = _gameFont.MeasureString(str);
                 spriteBatch.DrawString(_gameFont, str, new Vector2(Constants.GameWidth / 2 - strSize.X / 2, Constants.GameHeight / 2 - strSize.Y), Color.Red);

@@ -11,6 +11,8 @@ namespace ExtinctionRun
         private GraphicsDeviceManager _graphics;
         private readonly ScreenManager _screenManager;
 
+        public int HighScore { get; set; } = 0;
+
         public ExtinctionRun()
         {
             _graphics = new GraphicsDeviceManager(this);
