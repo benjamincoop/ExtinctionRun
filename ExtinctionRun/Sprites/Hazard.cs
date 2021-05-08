@@ -24,7 +24,7 @@ namespace ExtinctionRun.Sprites
         /// <summary>
         /// The rate at which the sprite scrolls leftward
         /// </summary>
-        public Vector2 Velocity { get; set; } = new Vector2(Constants.RunSpeed, 0f);
+        public Vector2 Velocity { get; set; }
 
         public bool Active { get; set; } = true;
 
@@ -33,10 +33,11 @@ namespace ExtinctionRun.Sprites
         /// </summary>
         /// <param name="position"></param>
         /// <param name="texture"></param>
-        public Hazard(Vector2 position, HazardType type)
+        public Hazard(Vector2 position, HazardType type, float speed)
         {
             Position = position;
             Type = type;
+            Velocity = new Vector2(speed, 0f);
         }
 
         /// <summary>

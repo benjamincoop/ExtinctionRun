@@ -17,16 +17,17 @@ namespace ExtinctionRun.Sprites
         /// <summary>
         /// The rate at which the tile scrolls leftward
         /// </summary>
-        public Vector2 Velocity { get; set; } = new Vector2(Constants.RunSpeed, 0f);
+        public Vector2 Velocity { get; set; }
 
         /// <summary>
         /// Creates a new terrain tile
         /// </summary>
         /// <param name="position"></param>
         /// <param name="texture"></param>
-        public Terrain(Vector2 position)
+        public Terrain(Vector2 position, float speed)
         {
             Position = position;
+            Velocity = new Vector2(speed, 0f);
         }
 
         /// <summary>

@@ -11,7 +11,7 @@ namespace ExtinctionRun.Sprites
         /// <summary>
         /// The rate at which the coin scrolls leftward
         /// </summary>
-        public Vector2 Velocity { get; set; } = new Vector2(Constants.RunSpeed, 0f);
+        public Vector2 Velocity { get; set; }
 
         public bool Active { get; set; } = true;
 
@@ -22,11 +22,12 @@ namespace ExtinctionRun.Sprites
         /// </summary>
         /// <param name="position"></param>
         /// <param name="texture"></param>
-        public Coin(Vector2 position)
+        public Coin(Vector2 position, float speed)
         {
             Position = position;
             ScaleFactor = Constants.CoinScale;
             CollisionCircle = new CollisionHelper.BoundingCircle(Vector2.Zero, (Constants.CoinSize * Constants.CoinScale) / 2);
+            Velocity = new Vector2(speed, 0f);
         }
 
         /// <summary>

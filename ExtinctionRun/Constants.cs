@@ -23,6 +23,8 @@ namespace ExtinctionRun
         const int coinValue = 200;
         const int scoreRate = 10;
         const int heartSize = 48;
+        const float maxSpeed = -1000f;
+        const int deadHeight = 204;
 
         public static string Title { get { return title; } }
         public static int GameWidth { get { return gameWidth; } }
@@ -39,5 +41,7 @@ namespace ExtinctionRun
         public static int CoinValue { get { return coinValue; } }
         public static int ScoreRate { get { return scoreRate; } }
         public static int HeartSize { get { return heartSize; } }
+        public static float MaxSpeed {  get { return maxSpeed; } }
+        public static int DeadHeight {  get { return deadHeight; } }
     }
 }

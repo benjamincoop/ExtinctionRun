@@ -21,6 +21,8 @@ namespace ExtinctionRun.Screens
         private readonly InputAction _pauseAction;
         private readonly InputAction _jumpAction;
 
+        public float Speed { get; set; } = Constants.RunSpeed;
+
         /// <summary>
         /// The player's current score
         /// </summary>
@@ -30,6 +32,26 @@ namespace ExtinctionRun.Screens
         /// Awards player points after a certain time interval has elapsed
         /// </summary>
         private double _scoreClock = 0;
+
+        /// <summary>
+        /// Spawns a new hazard after a certain time interval
+        /// </summary>
+        private double _spawnClock = 0;
+
+        /// <summary>
+        /// Keeps the player invulnerable for a bit
+        /// </summary>
+        private double _invulnerableClock = 0;
+
+        /// <summary>
+        /// Increase the speed after a certain time interval
+        /// </summary>
+        private double _speedClock = 0;
+
+        /// <summary>
+        /// the number of hazards to be spawned
+        /// </summary>
+        private int _spawnCount = 0;
 
         /// <summary>
         /// The two sprites that make up the infinite scrolling background
@@ -105,8 +127,8 @@ namespace ExtinctionRun.Screens
             // Create the terrain tiles
             _terrainTiles = new Terrain[]
             {
-                new Terrain(new Vector2(0,Constants.GameHeight-Constants.TerrainHeight)),
-                new Terrain(new Vector2(Constants.GameWidth, Constants.GameHeight-Constants.TerrainHeight))
+                new Terrain(new Vector2(0,Constants.GameHeight-Constants.TerrainHeight), Speed),
+                new Terrain(new Vector2(Constants.GameWidth, Constants.GameHeight-Constants.TerrainHeight), Speed)
             };
 
             _player = new Player(new Vector2(
@@ -117,7 +139,7 @@ namespace ExtinctionRun.Screens
             _hazards = new List<Hazard>();
             _coins = new List<Coin>();
             _heartPickups = new List<Heart>();
-            _extraLife = new Heart(new Vector2(Constants.GameWidth - (Constants.HeartSize + 5), 5), false);
+            _extraLife = new Heart(new Vector2(Constants.GameWidth - (Constants.HeartSize + 5), 5), false, Speed);
         }
 
         // Load assets
@@ -133,9 +155,9 @@ namespace ExtinctionRun.Screens
             foreach (Background bg in _backgrounds) { bg.LoadContent(_content); }
             foreach (Terrain terrain in _terrainTiles) { terrain.LoadContent(_content); }
             _player.LoadContent(_content);
-            _hazards.Add(SpawnHazard());
+            //_hazards.Add(SpawnHazard());
             _coins.Add(SpawnCoin(new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + (Constants.CoinSize * Constants.CoinScale)))));
-            _heartPickups.Add(SpawnHeart(new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + Constants.HeartSize + 200))));
+            //_heartPickups.Add(SpawnHeart(new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + Constants.HeartSize + 200))));
             _extraLife.LoadContent(_content);
             _SFXcoin = _content.Load<SoundEffect>("CoinPickup");
             _SFXhurt = _content.Load<SoundEffect>("Hurt");
@@ -175,7 +197,7 @@ namespace ExtinctionRun.Screens
 
             if (IsActive)
             {
-                if (_player.State != Player.PlayerState.DYING && _player.State != Player.PlayerState.DEAD)
+                if (_player.State != Player.PlayerState.DEAD)
                 {
                     // update score
                     _scoreClock += gameTime.ElapsedGameTime.TotalMilliseconds;
@@ -185,16 +207,62 @@ namespace ExtinctionRun.Screens
                         _scoreClock = 0;
                     }
 
+                    // spawn hazards
+                    if(_spawnCount > 0)
+                    {
+                        _spawnClock += gameTime.ElapsedGameTime.TotalMilliseconds;
+                        if(_spawnClock >= 150)
+                        {
+                            _hazards.Add(SpawnHazard());
+                            _spawnCount--;
+                            _spawnClock = 0;
+                        }
+                    } else
+                    {
+                        if(_hazards.Count < 2)
+                        {
+                            _spawnCount = random.Next(1, 2);
+                        }
+                    }
+
+                    //check for invulnerablity
+                    if(_invulnerable)
+                    {
+                        _invulnerableClock += gameTime.ElapsedGameTime.TotalMilliseconds;
+                        if(_invulnerableClock >= 500)
+                        {
+                            _invulnerable = false;
+                            _invulnerableClock = 0;
+                        }
+                    }
+
+                    //check for difficulty increase
+                    _speedClock += gameTime.ElapsedGameTime.TotalMilliseconds;
+                    if(_speedClock >= 1000)
+                    {
+                        if(Speed > Constants.MaxSpeed)
+                        {
+                            Speed -= 1f;
+                        }
+                        _speedClock = 0;
+                    }
+
                     // update sprites
-                    foreach (Background bg in _backgrounds) { bg.Update(gameTime); }
-                    foreach (Terrain terrain in _terrainTiles) { terrain.Update(gameTime); }
+                    foreach (Background bg in _backgrounds) {
+                        bg.Update(gameTime);
+                    }
+                    foreach (Terrain terrain in _terrainTiles) {
+                        terrain.Update(gameTime);
+                        terrain.Velocity = new Vector2(Speed, 0f);
+                    }
                     foreach (Hazard hazard in _hazards.ToArray())
                     {
                         hazard.Update(gameTime);
+                        hazard.Velocity = new Vector2(Speed, 0f);
                         if (hazard.CollisionBox.CollidesWith(_player.CollisionBox))
                         {
                             _player.ShadingColor = Color.Red;
-                            if(_invulnerable == false)
+                            if (_invulnerable == false)
                             {
                                 if (_extraLife.Active)
                                 {
@@ -204,25 +272,24 @@ namespace ExtinctionRun.Screens
                                 }
                                 else
                                 {
-                                    _SFXdead.Play();
-                                    GameOver();
+                                    if (_player.State != Player.PlayerState.DYING)
+                                    {
+                                        _SFXdead.Play();
+                                        GameOver();
+                                    }
                                 }
                             }
-                        }
-                        else
+                        } else
                         {
                             _player.ShadingColor = Color.White;
-                            _invulnerable = false;
                         }
-                        if (hazard.Active == false)
-                        {
-                            _hazards.Remove(hazard);
-                            _hazards.Add(SpawnHazard());
-                        }
+
+                        if (hazard.Active == false) { _hazards.Remove(hazard); }
                     }
                     foreach (Coin coin in _coins.ToArray())
                     {
                         coin.Update(gameTime);
+                        coin.Velocity = new Vector2(Speed, 0f);
                         if (coin.CollisionCircle.CollidesWith(_player.CollisionBox))
                         {
                             _score += Constants.CoinValue;
@@ -238,6 +305,7 @@ namespace ExtinctionRun.Screens
                     foreach (Heart heart in _heartPickups.ToArray())
                     {
                         heart.Update(gameTime);
+                        heart.Velocity = new Vector2(Speed, 0f);
                         if (heart.CollisionCircle.CollidesWith(_player.CollisionBox))
                         {
                             heart.Active = false;
@@ -253,7 +321,9 @@ namespace ExtinctionRun.Screens
                     }
                     if (_extraLife.Active == false && _heartPickups.Count == 0)
                     {
-                        _heartPickups.Add(SpawnHeart(new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + Constants.HeartSize + 200))));
+                        int r = random.Next(1, 900);
+                        if(r == 1) { _heartPickups.Add(SpawnHeart(new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + Constants.HeartSize + 200)))); }
+                        
                     }
                 } else
                 {
@@ -263,7 +333,7 @@ namespace ExtinctionRun.Screens
             }
         }
 
-        // Unlike the Update method, this will only be called when the gameplay screen is active.
+        // Controls input logic
         public override void HandleInput(GameTime gameTime, InputState input)
         {
             if (input == null)
@@ -295,25 +365,28 @@ namespace ExtinctionRun.Screens
             }
         }
 
+        // helper method for spawning a single random hazard
         private Hazard SpawnHazard()
         {
             Hazard hazard;
             int type = random.Next(0, 5);
-            hazard = new Hazard(Vector2.Zero, (Hazard.HazardType)type);
+            hazard = new Hazard(Vector2.Zero, (Hazard.HazardType)type, Speed);
             hazard.LoadContent(_content);
             return hazard;
         }
 
+        // helper method for spawning a coin
         private Coin SpawnCoin(Vector2 position)
         {
-            Coin coin = new Coin(position);
+            Coin coin = new Coin(position, Speed);
             coin.LoadContent(_content);
             return coin;
         }
 
+        // helper method for spawning a heart
         private Heart SpawnHeart(Vector2 position)
         {
-            Heart heart = new Heart(position, true);
+            Heart heart = new Heart(position, true, Speed);
             heart.LoadContent(_content);
             return heart;
         }
@@ -328,7 +401,7 @@ namespace ExtinctionRun.Screens
 
         public override void Draw(GameTime gameTime)
         {
-            //ScreenManager.GraphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
+            //ScreenManager.GraphicsDevice.Clear(ClearOptions.Target, Color.FromNonPremultiplied(140,91,0,255), 0, 0);
             var spriteBatch = ScreenManager.SpriteBatch;
 
             spriteBatch.Begin();

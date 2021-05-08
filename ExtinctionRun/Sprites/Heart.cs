@@ -11,7 +11,7 @@ namespace ExtinctionRun.Sprites
         /// <summary>
         /// The rate at which the heart scrolls leftward
         /// </summary>
-        public Vector2 Velocity { get; set; } = new Vector2(Constants.RunSpeed, 0f);
+        public Vector2 Velocity { get; set; }
 
         public bool Active { get; set; } = true;
 
@@ -25,11 +25,12 @@ namespace ExtinctionRun.Sprites
         /// </summary>
         /// <param name="position"></param>
         /// <param name="texture"></param>
-        public Heart(Vector2 position, bool isPickup)
+        public Heart(Vector2 position, bool isPickup, float speed)
         {
             Position = position;
             IsPickup = isPickup;
             CollisionCircle = new CollisionHelper.BoundingCircle(Vector2.Zero, Constants.HeartSize / 2);
+            Velocity = new Vector2(speed, 0f);
         }
 
         /// <summary>

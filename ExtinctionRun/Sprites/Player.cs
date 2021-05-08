@@ -63,6 +63,10 @@ namespace ExtinctionRun.Sprites
             if(State == PlayerState.DYING && _animations[(int)State].IsFinished)
             {
                 State = PlayerState.DEAD;
+                Position = new Vector2(
+                        (Constants.GameWidth / 2) - (Constants.PlayerWidth * Constants.PlayerScale / 2),
+                        Constants.GameHeight - (Constants.TerrainHeight + Constants.DeadHeight * Constants.PlayerScale)
+                    );
             }
 
             // Get current texture
