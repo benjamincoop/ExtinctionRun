@@ -1,0 +1,23 @@
+Font:
+	VT323, https://fonts.google.com/specimen/VT323, OFL
+  
+Desert background and tiles:
+	https://www.gameart2d.com/free-desert-platformer-tileset.html, CC0
+	
+Dinosaur texture:
+	https://www.gameart2d.com/free-dino-sprites.html, CC0
+  
+Coin sprite:
+  https://opengameart.org/content/rotating-coin, user "puddin", CC0
+  
+Dino SFX:
+  https://opengameart.org/content/monster-sound-effects-pack, user "Ogrebane", CC0
+  
+Coin and heart pickup SFX:
+  https://opengameart.org/content/sound-effects-mini-pack15, user "phoenix1291", CC0
+  
+Heart sprite:
+  https://opengameart.org/content/heart-pixel-art, DanSevenStar.xyz, CC BY 3.0
+  
+Game music:
+  https://opengameart.org/content/desert-theme-8bit-chiptune-theme, user "Wolfgang", CC0
