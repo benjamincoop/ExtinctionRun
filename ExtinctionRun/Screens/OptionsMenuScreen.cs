@@ -7,82 +7,55 @@ namespace ExtinctionRun.Screens
     // in various hopefully useful ways.
     public class OptionsMenuScreen : MenuScreen
     {
-        private enum Ungulate
-        {
-            BactrianCamel,
-            Dromedary,
-            Llama,
-        }
 
-        private readonly MenuEntry _ungulateMenuEntry;
-        private readonly MenuEntry _languageMenuEntry;
-        private readonly MenuEntry _frobnicateMenuEntry;
-        private readonly MenuEntry _elfMenuEntry;
+        private readonly MenuEntry _musicVolEntry;
+        private readonly MenuEntry _SFXVolEntry;
 
-        private static Ungulate _currentUngulate = Ungulate.Dromedary;
-        private static readonly string[] Languages = { "C#", "French", "Deoxyribonucleic acid" };
-        private static int _currentLanguage;
-        private static bool _frobnicate = true;
-        private static int _elf = 23;
+        private static int _music = 50;
+        private static int _sfx = 50;
 
         public OptionsMenuScreen() : base("Options")
         {
-            _ungulateMenuEntry = new MenuEntry(string.Empty);
-            _languageMenuEntry = new MenuEntry(string.Empty);
-            _frobnicateMenuEntry = new MenuEntry(string.Empty);
-            _elfMenuEntry = new MenuEntry(string.Empty);
+            _musicVolEntry = new MenuEntry(string.Empty);
+            _SFXVolEntry = new MenuEntry(string.Empty);
 
             SetMenuEntryText();
 
             var back = new MenuEntry("Back");
 
-            _ungulateMenuEntry.Selected += UngulateMenuEntrySelected;
-            _languageMenuEntry.Selected += LanguageMenuEntrySelected;
-            _frobnicateMenuEntry.Selected += FrobnicateMenuEntrySelected;
-            _elfMenuEntry.Selected += ElfMenuEntrySelected;
+            _musicVolEntry.Selected += MusicEntrySelected;
+            _SFXVolEntry.Selected += SFXEntrySelected;
             back.Selected += OnCancel;
 
-            MenuEntries.Add(_ungulateMenuEntry);
-            MenuEntries.Add(_languageMenuEntry);
-            MenuEntries.Add(_frobnicateMenuEntry);
-            MenuEntries.Add(_elfMenuEntry);
+            MenuEntries.Add(_musicVolEntry);
+            MenuEntries.Add(_SFXVolEntry);
+
             MenuEntries.Add(back);
         }
 
         // Fills in the latest values for the options screen menu text.
         private void SetMenuEntryText()
         {
-            _ungulateMenuEntry.Text = $"Preferred ungulate: {_currentUngulate}";
-            _languageMenuEntry.Text = $"Language: {Languages[_currentLanguage]}";
-            _frobnicateMenuEntry.Text = $"Frobnicate: {(_frobnicate ? "on" : "off")}";
-            _elfMenuEntry.Text = $"elf: {_elf.ToString()}";
+            _musicVolEntry.Text = $"Music Volume: {_music.ToString()}";
+            _SFXVolEntry.Text = $"Music Volume: {_sfx.ToString()}";
         }
 
-        private void UngulateMenuEntrySelected(object sender, PlayerIndexEventArgs e)
+        private void MusicEntrySelected(object sender, PlayerIndexEventArgs e)
         {
-            _currentUngulate++;
+            _music += 5;
 
-            if (_currentUngulate > Ungulate.Llama)
-                _currentUngulate = 0;
+            if (_music > 100)
+                _music = 0;
 
             SetMenuEntryText();
         }
-
-        private void LanguageMenuEntrySelected(object sender, PlayerIndexEventArgs e)
+        private void SFXEntrySelected(object sender, PlayerIndexEventArgs e)
         {
-            _currentLanguage = (_currentLanguage + 1) % Languages.Length;
-            SetMenuEntryText();
-        }
+            _sfx += 5;
 
-        private void FrobnicateMenuEntrySelected(object sender, PlayerIndexEventArgs e)
-        {
-            _frobnicate = !_frobnicate;
-            SetMenuEntryText();
-        }
+            if (_sfx > 100)
+                _sfx = 0;
 
-        private void ElfMenuEntrySelected(object sender, PlayerIndexEventArgs e)
-        {
-            _elf++;
             SetMenuEntryText();
         }
     }

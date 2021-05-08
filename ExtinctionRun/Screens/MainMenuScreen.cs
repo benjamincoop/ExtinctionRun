@@ -10,17 +10,17 @@ namespace ExtinctionRun.Screens
         {
             var playGameMenuEntry = new MenuEntry("Play Game");
             var helpMenuEntry = new MenuEntry("How to Play");
-            //var optionsMenuEntry = new MenuEntry("Options");
+            var optionsMenuEntry = new MenuEntry("Options");
             var exitMenuEntry = new MenuEntry("Exit");
 
             playGameMenuEntry.Selected += PlayGameMenuEntrySelected;
             helpMenuEntry.Selected += HelpMenuEntrySelected;
-            //optionsMenuEntry.Selected += OptionsMenuEntrySelected;
+            optionsMenuEntry.Selected += OptionsMenuEntrySelected;
             exitMenuEntry.Selected += OnCancel;
 
             MenuEntries.Add(playGameMenuEntry);
             MenuEntries.Add(helpMenuEntry);
-            //MenuEntries.Add(optionsMenuEntry);
+            MenuEntries.Add(optionsMenuEntry);
             MenuEntries.Add(exitMenuEntry);
         }
 
