@@ -20,8 +20,8 @@ namespace ExtinctionRun.Screens
 
         private void QuitGameMenuEntrySelected(object sender, PlayerIndexEventArgs e)
         {
-            const string message = "Are you sure you want to quit this game?";
-            var confirmQuitMessageBox = new MessageBoxScreen(message);
+            const string message = "Are you sure you want to quit this game?\nENTER = yes\nESC = no";
+            var confirmQuitMessageBox = new MessageBoxScreen(message, false);
 
             confirmQuitMessageBox.Accepted += ConfirmQuitMessageBoxAccepted;
 

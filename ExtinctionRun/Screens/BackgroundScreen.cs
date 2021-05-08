@@ -32,7 +32,7 @@ namespace ExtinctionRun.Screens
             if (_content == null)
                 _content = new ContentManager(ScreenManager.Game.Services, "Content");
 
-            _backgroundTexture = _content.Load<Texture2D>("background");
+            _backgroundTexture = _content.Load<Texture2D>("desert_bg");
         }
 
         public override void Unload()

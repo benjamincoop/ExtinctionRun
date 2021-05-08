@@ -20,6 +20,7 @@ namespace ExtinctionRun.Screens
         private float _pauseAlpha;
         private readonly InputAction _pauseAction;
         private readonly InputAction _jumpAction;
+        private readonly InputAction _restartAction;
 
         public float Speed { get; set; } = Constants.RunSpeed;
 
@@ -116,7 +117,13 @@ namespace ExtinctionRun.Screens
                 new[] { Buttons.A, Buttons.DPadUp },
                 new[] { Keys.Space},
                 true
-            ) ;
+            );
+
+            _restartAction = new InputAction(
+                new[] {Buttons.Start},
+                new[] {Keys.Enter},
+                true
+            );
 
             // Create the scrolling background
             _backgrounds = new Background[] {
@@ -321,7 +328,7 @@ namespace ExtinctionRun.Screens
                     }
                     if (_extraLife.Active == false && _heartPickups.Count == 0)
                     {
-                        int r = random.Next(1, 900);
+                        int r = random.Next(1, 1000);
                         if(r == 1) { _heartPickups.Add(SpawnHeart(new Vector2(Constants.GameWidth, Constants.GameHeight - (Constants.TerrainHeight + Constants.HeartSize + 200)))); }
                         
                     }
@@ -361,6 +368,10 @@ namespace ExtinctionRun.Screens
                 if(_jumpAction.Occurred(input, ControllingPlayer, out player) && _player.State == Player.PlayerState.RUNNING)
                 {
                     _player.Jump();
+                }
+                if(_restartAction.Occurred(input, ControllingPlayer, out player) && _player.State == Player.PlayerState.DEAD)
+                {
+                    LoadingScreen.Load(ScreenManager, true, ControllingPlayer.Value, new GameplayScreen());
                 }
             }
         }
@@ -417,7 +428,7 @@ namespace ExtinctionRun.Screens
             spriteBatch.DrawString(_gameFont, "Score:   " + _score.ToString(), Vector2.Zero, Color.Black);
             if(_player.State == Player.PlayerState.DEAD)
             {
-                string str = "Game   Over";
+                string str = "Game Over\nPress ENTER to restart.";
                 Vector2 strSize = _gameFont.MeasureString(str);
                 spriteBatch.DrawString(_gameFont, str, new Vector2(Constants.GameWidth / 2 - strSize.X / 2, Constants.GameHeight / 2 - strSize.Y), Color.Red);
             }

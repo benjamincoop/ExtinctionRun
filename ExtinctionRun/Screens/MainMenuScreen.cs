@@ -6,21 +6,21 @@ namespace ExtinctionRun.Screens
     // The main menu screen is the first thing displayed when the game starts up.
     public class MainMenuScreen : MenuScreen
     {
-        public MainMenuScreen() : base("Main Menu")
+        public MainMenuScreen() : base("Extinction Run")
         {
             var playGameMenuEntry = new MenuEntry("Play Game");
             var helpMenuEntry = new MenuEntry("How to Play");
-            var optionsMenuEntry = new MenuEntry("Options");
+            //var optionsMenuEntry = new MenuEntry("Options");
             var exitMenuEntry = new MenuEntry("Exit");
 
             playGameMenuEntry.Selected += PlayGameMenuEntrySelected;
             helpMenuEntry.Selected += HelpMenuEntrySelected;
-            optionsMenuEntry.Selected += OptionsMenuEntrySelected;
+            //optionsMenuEntry.Selected += OptionsMenuEntrySelected;
             exitMenuEntry.Selected += OnCancel;
 
             MenuEntries.Add(playGameMenuEntry);
             MenuEntries.Add(helpMenuEntry);
-            MenuEntries.Add(optionsMenuEntry);
+            //MenuEntries.Add(optionsMenuEntry);
             MenuEntries.Add(exitMenuEntry);
         }
 
@@ -31,7 +31,7 @@ namespace ExtinctionRun.Screens
 
         private void HelpMenuEntrySelected(object sender, PlayerIndexEventArgs e)
         {
-            string message = "Avoid the obstacles by pressing SPACE to jump over them. Collect coins for bonus points and hearts for extra lives.";
+            string message = "Avoid the obstacles by pressing SPACE to jump over them.\nCollect coins for bonus points and hearts for extra lives.";
             ScreenManager.AddScreen(new MessageBoxScreen(message, false), e.PlayerIndex);
         }
 
@@ -42,8 +42,8 @@ namespace ExtinctionRun.Screens
 
         protected override void OnCancel(PlayerIndex playerIndex)
         {
-            const string message = "Are you sure you want to exit this sample?";
-            var confirmExitMessageBox = new MessageBoxScreen(message);
+            const string message = "Are you sure you want to exit?\nENTER = yes\nESC = no";
+            var confirmExitMessageBox = new MessageBoxScreen(message, false);
 
             confirmExitMessageBox.Accepted += ConfirmExitMessageBoxAccepted;
 
